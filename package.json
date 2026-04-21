@@ -1,5 +1,5 @@
 {
-  "name": "clone-homepage",
+  "name": "fb88-mmo-frontend",
   "private": true,
   "scripts": {
     "dev": "next dev",

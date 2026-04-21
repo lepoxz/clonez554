@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CLONE282_REVALIDATE, getClone282ProductDetail } from "../../../../lib/clone282";
+import { getClone282ProductDetail } from "../../../../services/catalog-data";
 
-export const revalidate = CLONE282_REVALIDATE;
+export const revalidate = 300;
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     const detail = await getClone282ProductDetail(id, token);
-    return NextResponse.json({ detail, source: "clone282" });
+    return NextResponse.json({ detail });
   } catch {
     return NextResponse.json({ error: "Unable to fetch product detail" }, { status: 500 });
   }

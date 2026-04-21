@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "tainguyenst.com"
+      },
+      {
+        protocol: "https",
+        hostname: "qr.sepay.vn"
       }
     ]
   }

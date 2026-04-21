@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ProductDetailClient from "./product-detail-client";
-import { getClone282ProductDetail, getClone282ProductsData } from "../../../lib/clone282";
+import { getClone282ProductDetail, getClone282ProductsData } from "../../../services/catalog-data";
+import ThemeToggle from "../../../components/ui/theme-toggle";
 
 function inferCountry(title: string) {
   const normalized = title.toUpperCase();
@@ -22,7 +23,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     categorySlug: "unknown",
     categoryTitle: "Đang cập nhật",
     desc: detail.desc,
-    href: "https://clone282.net/",
+    href: "#",
     id,
     price: detail.price,
     stock: detail.stock,
@@ -35,9 +36,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <Link href="/" className="back-link">
           Quay về trang chủ
         </Link>
-        <a href={product.href} target="_blank" rel="noreferrer" className="source-link">
-          Mở sản phẩm gốc
-        </a>
+        <ThemeToggle />
       </div>
 
       <section className="product-hero-card">
@@ -86,34 +85,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
       </section>
 
-      <section className="product-detail-sections">
+      <section className="product-detail-sections product-detail-sections-single">
         <article className="product-detail-card">
           <span className="section-tag">Mô tả</span>
           <h2>Thông tin đầy đủ</h2>
           <p>{detail.desc || product.desc}</p>
-        </article>
-
-        <article className="product-detail-card">
-          <span className="section-tag">Thông số</span>
-          <h2>Thông tin mua hàng</h2>
-          <div className="product-spec-grid">
-            <div>
-              <span>Mã sản phẩm</span>
-              <strong>{product.id}</strong>
-            </div>
-            <div>
-              <span>Nguồn dữ liệu</span>
-              <strong>clone282</strong>
-            </div>
-            <div>
-              <span>Nút hành động</span>
-              <strong>{detail.buyButtonLabel ?? "Mua ngay"}</strong>
-            </div>
-            <div>
-              <span>Link gốc</span>
-              <strong className="product-link-break">{product.href}</strong>
-            </div>
-          </div>
         </article>
       </section>
     </main>
