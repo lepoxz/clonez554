@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isModalEnabled, proxyToModal } from "../../../../services/modal-proxy";
 import {
   extractOrderCode,
   hasProcessedWebhookTransaction,
@@ -13,6 +14,7 @@ import { extractDepositCode, markDepositPaid } from "../../../../services/wallet
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  if (isModalEnabled()) return proxyToModal(request, "/sepay/webhook");
   if (!verifySepayWebhookAuthorization(request.headers.get("authorization"))) {
     return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
   }
@@ -34,7 +36,6 @@ export async function POST(request: NextRequest) {
 
   const content = typeof payload.content === "string" ? payload.content : "";
 
-  // ── Kiểm tra nạp tiền (deposit) trước ──────────────────────────────────────
   const depositCode = extractDepositCode(content);
   if (depositCode) {
     const updated = markDepositPaid(depositCode, {
@@ -42,15 +43,12 @@ export async function POST(request: NextRequest) {
       referenceCode: typeof payload.referenceCode === "string" ? payload.referenceCode : null
     });
     markWebhookTransactionProcessed(payload.id);
-
     if (updated) {
-      console.log(`[SePay Webhook] Deposit credited: ${depositCode} → ${updated.username} +${updated.amount}đ`);
       return NextResponse.json({ success: true, type: "deposit", depositCode, username: updated.username }, { status: 201 });
     }
     return NextResponse.json({ success: true, ignored: true }, { status: 200 });
   }
 
-  // ── Kiểm tra thanh toán đơn hàng sản phẩm ──────────────────────────────────
   const orderCode = extractOrderCode(content);
   if (!orderCode) {
     markWebhookTransactionProcessed(payload.id);
@@ -64,7 +62,5 @@ export async function POST(request: NextRequest) {
     transactionId: payload.id
   });
   markWebhookTransactionProcessed(payload.id);
-
-  console.log(`[SePay Webhook] Order paid: ${orderCode}`);
   return NextResponse.json({ success: true, type: "order", orderCode }, { status: 201 });
 }
