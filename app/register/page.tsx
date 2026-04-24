@@ -35,9 +35,9 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ displayName, username, password })
       });
-      const data = await r.json() as { success: boolean; error?: string };
+            const data = await r.json() as { success?: boolean; ok?: boolean; error?: string };
 
-      if (!r.ok || !data.success) {
+            if (!r.ok || (!data.success && !data.ok)) {
         setError(data.error ?? "Đăng ký thất bại");
         return;
       }
