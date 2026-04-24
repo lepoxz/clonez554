@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerUser, setSession } from "../../../../services/auth";
+import { isModalEnabled, proxyToModal } from "../../../../services/modal-proxy";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  if (isModalEnabled()) return proxyToModal(request, "/auth/register");
   try {
     const { displayName, username, password } = (await request.json()) as {
       displayName?: string;
