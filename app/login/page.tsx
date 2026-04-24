@@ -26,9 +26,9 @@ function LoginForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
       });
-      const data = await r.json() as { success: boolean; error?: string };
+            const data = await r.json() as { success?: boolean; ok?: boolean; error?: string };
 
-      if (!r.ok || !data.success) {
+            if (!r.ok || (!data.success && !data.ok)) {
         setError(data.error ?? "Đăng nhập thất bại");
         return;
       }
