@@ -1,10 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "../../../../services/auth";
 import { getAllDeposits, getAllBalances, getAllTransactions, getAllOrders } from "../../../../services/wallet";
+import { isModalEnabled, proxyToModal } from "../../../../services/modal-proxy";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (isModalEnabled()) return proxyToModal(request, "/admin/stats");
   const session = await getSession();
 
   if (!session || session.role !== "admin") {
