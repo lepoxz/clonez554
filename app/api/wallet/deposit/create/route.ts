@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "../../../../../services/auth";
 import { createDeposit } from "../../../../../services/wallet";
 import { buildSepayQrUrl, hasSepayCheckoutConfig, normalizeAmount } from "../../../../../services/sepay";
+import { isModalEnabled, proxyToModal } from "../../../../../services/modal-proxy";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  if (isModalEnabled()) return proxyToModal(request, "/wallet/deposit");
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
