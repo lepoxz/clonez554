@@ -51,14 +51,32 @@ export async function setSession(user: SessionUser): Promise<void> {
 }
 
 export async function getSession(): Promise<SessionUser | null> {
-  try {
-    const cookieStore = await cookies();
-    const value = cookieStore.get(SESSION_COOKIE)?.value;
-    if (!value) return null;
-    return JSON.parse(Buffer.from(value, "base64").toString("utf-8")) as SessionUser;
-  } catch {
-    return null;
-  }
+    try {
+          const cookieStore = await cookies();
+          const value = cookieStore.get(SESSION_COOKIE)?.value;
+          if (!value) return null;
+
+          // When Modal backend is enabled, validate session via Modal API
+          const MODAL_URL = process.env.MODAL_BACKEND_URL?.replace(/\/$/, "");
+          if (MODAL_URL) {
+                  try {
+                            const res = await fetch(`${MODAL_URL}/auth/me`, {
+                                        headers: { Cookie: `${SESSION_COOKIE}=${value}` },
+                                        cache: "no-store",
+                            });
+                            if (!res.ok) return null;
+                            const data = await res.json();
+                            return data.user ?? null;
+                  } catch {
+                            return null;
+                  }
+          }
+
+          // Fallback: decode base64 JSON (in-memory mode)
+          return JSON.parse(Buffer.from(value, "base64").toString("utf-8")) as SessionUser;
+    } catch {
+          return null;
+    }
 }
 
 export async function clearSession(): Promise<void> {
